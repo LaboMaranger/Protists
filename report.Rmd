@@ -1,0 +1,433 @@
+---
+title: "LabSea Protists"
+author: "LabSea Slackers"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='figures/',
+                      echo=TRUE, warning=FALSE, message=FALSE)
+
+knitr::opts_knit$set(output.dir="reports")
+```
+
+```{r functions,echo=FALSE}
+# functions needed to run the script
+rm(list=ls(all=TRUE))
+
+# get traits by otu
+options(stringsAsFactors = FALSE)
+#m=transect_seq_agg
+#t=traits
+#tSel="feeding_strategy"
+#cw=cw_seq
+#cw_var="validName"
+traitsByOTU<- function(m,t,tSel,cw,cw_var){
+  v=rep(NA,ncol(m))
+  names(v)=colnames(m)
+  for(i in colnames(m)){
+  tempName=as.character(cw[cw[,cw_var]%in%i,"validName"])
+
+  if(length(which(t$validName%in%tempName))==0)next
+    if(is.na(tempName))next
+  v[i]=t[which(t$validName%in%tempName),tSel]
+  }
+  return(v)
+}
+
+logitPerCol<- function(m){
+  for(i in 1:ncol(m)){
+   m[,i]=logit(m[,i])}
+  return(m)
+}
+
+#m=transect_seq_agg[,sizeClasses%in%"(0.2,2]"]
+#c=as.factor(fsVector_seq)
+
+mergeByCat<- function(m,c){
+  c=c[!is.na(c)]
+  c=c[names(c)%in%colnames(m)]
+  m=m[,names(c)]
+  mergedM=matrix(NA,nrow(m),length(unique(c)),dimnames=list(rownames(m),unique(c)))
+  for(i in unique(c)){
+   mergedM[,i]=rowSums(m[,c%in%as.character(i),drop=F])}
+  return(mergedM)
+}
+
+ReporteRsWrap<- function(FUN,filename="Figure1"){
+  doc <- pptx()
+  doc <- addSlide(doc, "Two Content" )
+  doc <- addPlot(doc, FUN, vector.graphic = TRUE )
+  writeDoc(doc, file = paste0("figures/",filename,".pptx"))
+}
+
+waByOTU<-function(com,v){
+  v=v[!is.na(v)]
+  com=com[,names(v)]
+  res=apply(com,1,function(x,v)sum(prop.table(x)*v),v=v)
+  return(res)
+}
+
+
+plot_transect<- function(com,rep,colors=c("#73BAE6","#C7144C","#33a02c","#FFD700","#C742B5"),legend=T,ylim=c(0,0.8),f=0.7){
+plot(com[,1]~rep,pch=16,col=colors[1],ylim=ylim,xlab="Days before peak",ylab="proportion",cex.lab=1.5,cex.axis=1.5,las=1,cex=1.7)
+lines(lowess(com[,1]~rep, f = f), col =  colors[1],lwd=4)
+
+
+for(i in 2:ncol(com)){
+  points(com[,i]~rep,pch=16,col=colors[i],ylim=c(0,1),cex=1.7)
+lines(lowess(com[,i]~rep, f =f), col = colors[i],lwd=4)
+}
+ op <- par(cex = 1.5)
+if(legend)legend("topleft", legend=colnames(com),col=colors[1:ncol(com)],lty=1,lwd=3)
+}
+
+plot_transect_small<- function(com,rep,f=0.7){
+  colors=c("#73BAE6","#C7144C","#33a02c","#FFD700","#C742B5")
+plot(com[,1]~rep,pch=16,col=colors[1],ylim=c(min(com),max(com)),xlab="Days before peak",ylab="proportion",cex.lab=1.5,cex.axis=1.5,las=1,cex=1.7)
+lines(lowess(com[,1]~rep, f = 0.7), col = colors[1],lwd=4)
+
+
+for(i in 2:ncol(com)){
+  points(com[,i]~rep,pch=16,col=colors[i],ylim=c(0,1),cex=1.7)
+lines(lowess(com[,i]~rep, f = f), col = colors[i],lwd=4)
+}
+ #op <- par(cex = 1.5)
+#legend("topleft", legend=colnames(com),col=c("dodgerblue3","firebrick2","chartreuse3","darkmagenta","yellow")[1:ncol(com)],lty=1,lwd=3)
+}
+
+```
+
+```{r packages,echo=F}
+
+library(vegan)
+library(car)
+library(plotrix)
+library(plyr)
+#-library(ggplot2)
+library(knitr)
+#-library(FD)
+library(ReporteRs)
+```
+
+
+```{r import and norm data, echo=F}
+
+#import counts
+transect_micro=read.csv("data/Microscopie_count_Hud2014_2015.csv",header=T,check.names=F)
+
+#remove columns with an empty valid name
+transect_micro=transect_micro[-which(transect_micro[,"validName"]==""),]
+
+#sum by valid name
+transect_micro=ddply(transect_micro, "validName", numcolwise(sum))
+
+#transpose matrix (taxa as column)
+transect_micro=t(transect_micro)
+colnames(transect_micro)=transect_micro[1,];transect_micro=transect_micro[-1,]
+transect_micro=as.data.frame(transect_micro)
+rn=rownames(transect_micro)
+transect_micro=apply(transect_micro, 2, as.numeric)
+rownames(transect_micro)=rn
+
+#import sequences data
+transect_seq=read.csv("data/otu_transect_cnMod.csv",row.names=1)
+
+#import traits
+traits=read.csv("data/TransectTraitsTable_wide.csv")
+
+# import cross-walk tables for micro and sequencing
+cw_micro=read.csv("data/cw_microscopie.csv")
+cw_seq=read.csv("data/cw_sequencage.csv")
+
+samdf=read.csv("data/samdf.csv",header=T,sep=",")
+
+# match sites in sequences and samples
+m=match(rownames(transect_seq),samdf$Sample)
+
+# group samples by year and station (sum toghether fractions and depths)
+groupVar=list(samdf[m,"Year"],samdf[m,"Station"])
+
+transect_seq_agg=aggregate(transect_seq, by=groupVar,FUN=sum) 
+rownames(transect_seq_agg)= apply( transect_seq_agg[,(1:length(groupVar))] , 1 , paste , collapse = "-" )
+transect_seq_agg=transect_seq_agg[,-(1:length(groupVar))]
+
+
+# match sites in microscopy and samples
+m=match(rownames(transect_micro),samdf$Id)
+# group samples by year and station (sum toghether fractions and depths)
+groupVar=list(samdf[m,"Year"],samdf[m,"Station"])
+transect_micro_agg=aggregate(transect_micro, by=groupVar,FUN=sum) 
+rownames(transect_micro_agg)= apply( transect_micro_agg[,(1:length(groupVar))] , 1 , paste , collapse = "-" )
+transect_micro_agg=transect_micro_agg[,-(1:length(groupVar))]
+
+# aggregate samdf
+# group samples by year and station (sum toghether fractions and depths)
+groupVar=list(samdf$Year,samdf$Station)
+samdf_agg=aggregate(samdf[,-c(1,2,5)], by=groupVar,FUN=mean) 
+rownames(samdf_agg)= apply( samdf_agg[,(1:length(groupVar))] , 1 , paste , collapse = "-" )
+samdf_agg=samdf_agg[,-(1:length(groupVar))]
+
+# year as a factor
+samdf_agg$Year=as.factor(samdf_agg$Year)
+
+# group stations by water masses (3 or 4 masses)
+samdf_agg$stationGr=cut(samdf_agg$Station,breaks=c(-Inf,11,27,Inf),labels=c("lss","centre","greenland"))
+
+
+samdf_agg$stationGr=cut(samdf_agg$Station,breaks=c(-Inf,11,27,Inf),labels=c("lss","centre","greenland"))
+
+#divide sequencing data by volume
+transect_seq_agg=transect_seq_agg/samdf_agg[rownames(transect_seq_agg),"Volume"]
+```
+```{r kable,echo=F}
+# table of functional traits coverage
+traitsSel=traits[,c("DMS","feeding_strategy","motility","Taille.um.")]
+x=traitsSel$feedStrat
+freqCol<-function(x){length(x[!is.na(x)])/length(x)}
+sumTraits=as.matrix(apply(traitsSel,2,freqCol))
+colnames(sumTraits)=c("Coverage")
+kable(round(sumTraits[order(sumTraits,decreasing = T),,drop=F],2))
+```
+
+
+
+```{r taille moyenne, echo=F}
+# create a size vector
+sizeVector=traitsByOTU(transect_seq_agg,traits,"Taille.um.",cw_seq,"OTU.")
+transect_meanSize=waByOTU(transect_seq_agg,sizeVector)
+
+```
+## Taxonomic 
+
+Permanova for taxonomical composition (sequencing)
+- Proportion of each taxa (to compare with functional) loggit transformed
+```{r taxo, echo=F}
+
+# proportion by taxa
+transect_seq.prop=prop.table(as.matrix(transect_seq_agg),margin=1)
+
+# logit transformation (for percentages)
+transect_seq.logit=car::logit(transect_seq.prop)
+# add the minimum (permanova = no negative values)
+transect_seq.logit=transect_seq.logit+abs(min(transect_seq.logit))
+
+
+print(fit <-adonis(transect_seq.logit~Year*stationGr,method="bray",permutations=999,data = 
+samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+
+print(fit <-adonis(transect_seq.logit~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=999,data = 
+samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+
+```
+
+## Feeding strategy
+- Proportion of organism/trait loggit transformed
+```{r feedStrat seq, echo=F}
+
+
+# create the feading strategy vector (fs)
+fsVector=traitsByOTU(transect_seq_agg,traits,"feeding_strategy",cw_seq,"OTU.")
+transect_fs=mergeByCat(transect_seq_agg,as.factor(fsVector))
+
+# calculate the proportion of each trait
+com_prop=prop.table(as.matrix(transect_fs),margin=1)
+
+fsVector_seq=fsVector
+
+
+# logit transformation (for percentages)
+com_prop.logit=car::logit(com_prop)
+# add the minimum (permanova = no negative values)
+com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
+
+# permonava with the proportion of each trait, logit transform
+print(fit <-adonis(com_prop.logit
+~Year*stationGr,method="bray",permutations=999,data = 
+samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+
+print(fit <-adonis(com_prop.logit
+~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
+
+#abundance by trait
+com_prop_seq_fs=com_prop
+com_abun=com_prop_seq_fs*rowSums(transect_seq_agg)
+
+samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
+rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
+
+# plot with proportions
+
+ppi=600
+png("fs_smooth.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
+plot_transect(com_prop[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_fs),"DSP.4"],legend=F,f=0.6)
+#plot_transect(com_prop[,c(2,3,1)],samdf_agg[rownames(transect_fs),"DSB.4"])
+invisible(dev.off())
+```
+
+## Classes de taille
+### Sequencage
+```{r classes de tailles seq, echo=F}
+
+classes=c(0.2,2,20,Inf)
+sizeClasses=cut(sizeVector,breaks=classes)
+names(sizeClasses)=names(sizeVector)
+transect_sizeClass=mergeByCat(transect_seq_agg,sizeClasses)
+com_prop=prop.table(as.matrix(transect_sizeClass),margin=1)
+
+com_prop_seq_size=com_prop
+
+com_abun=com_prop_seq_size*rowSums(transect_seq_agg)
+
+samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
+rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
+
+# logit transformation (for percentages)
+com_prop.logit=car::logit(com_prop)
+# add the minimum (permanova = no negative values)
+com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
+
+# permonava with the proportion of each trait, logit transform
+print(fit <-adonis(com_prop.logit
+~Year*stationGr,method="bray",permutations=999,data = 
+samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+
+print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
+~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
+
+
+
+ppi=600
+png("size3_smooth.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
+plot_transect(com_prop[,c(3,1,2)],samdf_agg[rownames(transect_sizeClass),"DSP.4"],colors=c("#73BAE6","#FFD700","#C742B5"),legend=F)
+dev.off()
+
+classes=c(0.2,2,5,10,20,Inf)
+sizeClasses=cut(sizeVector,breaks=classes)
+names(sizeClasses)=names(sizeVector)
+transect_sizeClass=mergeByCat(transect_seq_agg,sizeClasses)
+
+com_prop=prop.table(as.matrix(transect_sizeClass),margin=1)
+com_prop_seq_size=com_prop
+com_abun=com_prop_seq_size*rowSums(transect_seq_agg)
+
+samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
+rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
+
+# logit transformation (for percentages)
+com_prop.logit=car::logit(com_prop)
+# add the minimum (permanova = no negative values)
+com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
+
+# permonava with the proportion of each trait, logit transform
+print(fit <-adonis(com_prop.logit
+~Year*stationGr,method="bray",permutations=999,data = 
+samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+
+print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
+~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
+
+
+#unique(transect_sizeClass)
+transect_fs_C1=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(0.2,2]"],as.factor(fsVector_seq)),margin=1)
+transect_fs_C2=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(2,5]"],as.factor(fsVector_seq)),margin=1)
+transect_fs_C3=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(5,10]"],as.factor(fsVector_seq)),margin=1)
+transect_fs_C4=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(10,20]"],as.factor(fsVector_seq)),margin=1)
+transect_fs_C5=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(20,Inf]"],as.factor(fsVector_seq)),margin=1)
+
+
+
+
+# plot with proportions
+
+ppi=600
+png("size5_smooth.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
+plot_transect(com_prop[,c(4,5,1,2,3)],samdf_agg[rownames(transect_sizeClass),"DSP.4"],legend=F)
+dev.off()
+#plot_transect(com_prop[,c(4,5,1,2,3)],samdf_agg[rownames(transect_sizeClass),"DSB.4"])
+
+
+com_prop_seq_size=com_prop
+
+
+
+plotC1<- function(){plot_transect_small(transect_fs_C1[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
+ReporteRsWrap(plotC1,"C1")
+
+plotC2<- function(){plot_transect_small(transect_fs_C2[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
+ReporteRsWrap(plotC2,"C2")
+
+
+plotC3<- function(){plot_transect_small(transect_fs_C3[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
+ReporteRsWrap(plotC3,"C3")
+
+plotC4<- function(){plot_transect_small(transect_fs_C4[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
+ReporteRsWrap(plotC4,"C4")
+
+plotC5<- function(){plot_transect_small(transect_fs_C5[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
+ReporteRsWrap(plotC5,"C5")
+```
+## Motilité
+### Seq
+```{r motility seq, echo=F}
+
+motVector=traitsByOTU(transect_seq_agg,traits,"motility",cw_seq,"OTU.")
+
+transect_mot=mergeByCat(transect_seq_agg,as.factor(motVector))
+
+transect_mot_hel=decostand(transect_mot,method="hel")
+com_prop=prop.table(as.matrix(transect_mot),margin=1)
+
+com_prop_seq_size=com_prop
+
+com_abun=com_prop_seq_size*rowSums(transect_seq_agg)
+colnames(com_abun)=c("Motility0","Motility1")
+
+samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
+rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
+
+# logit transformation (for percentages)
+com_prop.logit=car::logit(com_prop)
+# add the minimum (permanova = no negative values)
+com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
+
+# permonava with the proportion of each trait, logit transform
+print(fit <-adonis(com_prop.logit
+~Year*stationGr,method="bray",permutations=999,data = 
+samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+
+print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
+~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
+
+```
+## DMS
+### Sequencage
+```{r DMS seq, echo=F}
+
+dmsVector=traitsByOTU(transect_seq_agg,traits,"DMS",cw_seq,"OTU.")
+transect_dms=mergeByCat(transect_seq_agg,as.factor(dmsVector))
+
+transect_dms_hel=decostand(transect_dms,method="hel")
+com_prop=prop.table(as.matrix(transect_dms),margin=1)
+
+com_abun=com_prop_seq_size*rowSums(transect_seq_agg)
+colnames(com_abun)=c("DMS0","DMS1")
+
+samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
+rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
+
+# logit transformation (for percentages)
+com_prop.logit=car::logit(com_prop)
+# add the minimum (permanova = no negative values)
+com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
+
+# permonava with the proportion of each trait, logit transform
+print(fit <-adonis(com_prop.logit
+~Year*stationGr,method="bray",permutations=999,data = 
+samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+
+print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
+~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
+
+write.csv(samdf_agg,"data/samdf_agg.csv")

@@ -1,0 +1,132 @@
+"class","validName","stage","X","buoyancy","capsule","chlb","chlc","Coloniales","DMS","feeding_strategy","Forme","fyco","motility","nfix","Parasitic","Symbiosis_bacterienne","Taille.um.","Toxines"
+"Acanthoecida","Calliacantha",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"14",NA
+"Acanthoecida","Cosmoeca",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"17",NA
+"Acanthoecida","Crucispina",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"15",NA
+"Acanthoecida","Diaphanoeca",NA,NA,"0",NA,"0","0",NA,"0","hetero","bowl","0","1","0","0",NA,"25","0"
+"Acanthoecida","Lagenoeca",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"6",NA
+"Acanthoecida","Monosiga",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"3",NA
+"Acanthoecida","Parvicorbicula",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"6",NA
+"Acanthoecida","Pleurasiga",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"12",NA
+"Chlorarachniophyta","Bigelowiella",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"1","0",NA,NA,"6","0"
+"Chlorophyceae","Chlamydomonas",NA,NA,"0",NA,"1","0",NA,"0","auto","sphere","0","1","0",NA,"1","6","0"
+"Chlorophyceae","Pachysphaera",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"0",NA,NA,NA,"100",NA
+"Chrysophyceae","Dinobryon",NA,NA,NA,NA,NA,NA,NA,"0","mixo",NA,NA,"1",NA,NA,NA,"45",NA
+"Chrysophyceae","Paraphysomonas",NA,NA,"0","silica","0","0",NA,"0","hetero","sphere","0","1","0",NA,NA,"5","0"
+"Coccolithales","Coccolithus",NA,NA,NA,"calcifiers",NA,NA,NA,"1","mixo","sphere",NA,"0","0",NA,NA,"6","0"
+"Craspedida","Bicosta",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"25",NA
+"Cryptomonadales_cl","Cryptochrysis-Chroomonas",NA,NA,NA,NA,NA,NA,NA,"0","mixo",NA,NA,"1",NA,NA,NA,"6",NA
+"Cryptomonadales_cl","Geminigera",NA,NA,NA,NA,NA,NA,NA,"0","mixo","flattened ellipsoid",NA,"1","0",NA,NA,"16","0"
+"Cryptomonadales_cl","Hemiselmis",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"1",NA,NA,NA,"7",NA
+"Cryptomonadales_cl","Plagioselmis",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"1",NA,NA,NA,"10",NA
+"Cryptomonadales_cl","Rhodomonas",NA,NA,"0",NA,"0","1",NA,"0","auto","Cone + half sphere","1","1","0",NA,NA,"13","0"
+"Cryptomonadales_cl","Teleaulax",NA,NA,"0",NA,"0","1",NA,"1","auto","Cone + half sphere","1","1","0",NA,NA,"6","0"
+"Cryptophyceae_cl","Goniomonas",NA,NA,NA,NA,"0","0",NA,"0","hetero","sphere","0","1","0","0",NA,"10","0"
+"Diatomea","Actinocyclus",NA,NA,"0","silica","0","1",NA,"0","auto","cylinder","0","0","0","0",NA,"35","0"
+"Diatomea","Arcocellulus",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"0",NA,NA,NA,"5",NA
+"Diatomea","Attheya",NA,NA,"0","silica","0","1",NA,"0","auto","oval centric","0","0","0",NA,NA,"20","0"
+"Diatomea","Chaetoceros",NA,NA,"0","silica","0","1","chain","0","auto","cylinder","0","0","0","0","1","15","0"
+"Diatomea","Coscinodiscus",NA,NA,"0","silica","0","1",NA,"1","auto","cylinder","0","0","0",NA,NA,"120","0"
+"Diatomea","Cylindrotheca",NA,NA,NA,NA,NA,NA,NA,"1","auto",NA,NA,"0",NA,NA,NA,"40",NA
+"Diatomea","Eucampia",NA,NA,"0","silica","0","1",NA,"0","auto","cylinder","0","0","0",NA,NA,"15","0"
+"Diatomea","Fragilaria",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"0",NA,NA,NA,"13",NA
+"Diatomea","Fragilariopsis",NA,NA,"0","silica","0","1",NA,"0","auto","parallelepiped","0","0","0",NA,NA,"17","0"
+"Diatomea","Lennoxia",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"0",NA,NA,NA,"11",NA
+"Diatomea","Leptocylindrus",NA,NA,"0","silica","0","1","chain","0","auto","cyinder","0","0","0",NA,NA,"40","0"
+"Diatomea","Membraneis",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"0",NA,NA,NA,"162",NA
+"Diatomea","Navicula",NA,NA,"0","silica","0","1","0","0","auto","boat","0","0","0",NA,NA,"50","0"
+"Diatomea","Nitzschia",NA,NA,"0","silica","0","1",NA,"1","auto","parallelepiped","0","0","0",NA,"1","13","0"
+"Diatomea","Plagiogrammopsis",NA,NA,NA,"silica",NA,NA,NA,"0","auto",NA,NA,"0","0",NA,NA,"32","0"
+"Diatomea","Porosira",NA,NA,NA,NA,NA,NA,NA,"1","auto",NA,NA,"1",NA,NA,NA,"40",NA
+"Diatomea","Pseudo-nitzschia",NA,NA,"0","silica","0","1","chain","0","mixo","boat","0","0","0","0","1","50","1"
+"Diatomea","Skeletonema",NA,NA,"0","silica","0","1","chain","1","auto","cylinder","0","0","0",NA,NA,"10","0"
+"Diatomea","Stauroneis",NA,NA,"0","silica","0","1",NA,"0","auto",NA,"0","0","0",NA,NA,"35","0"
+"Diatomea","Synedropsis",NA,NA,"0","silica","0","1","1","0","auto","pennate","0","0","0",NA,NA,"76","0"
+"Diatomea","Thalassiosira",NA,NA,"0","silica","0","1","chain","1","auto","cyinder","0","0","0",NA,"1","35","0"
+"Dictyochophyceae","Apedinella",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"1",NA,NA,NA,"5",NA
+"Dictyochophyceae","Dictyocha",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"1",NA,NA,NA,"30",NA
+"Dictyochophyceae","Florenciella",NA,NA,NA,"0",NA,"1",NA,"0","auto","sphere",NA,"1",NA,NA,NA,"6",NA
+"Dictyochophyceae","Pseudopedinella",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"1",NA,NA,NA,"11",NA
+"Dinophyceae","Amphidinium",NA,NA,NA,NA,NA,NA,NA,"1","mixo",NA,NA,"1",NA,NA,NA,"30",NA
+"Dinophyceae","Amphidoma",NA,NA,NA,"theca",NA,"1",NA,"1","mixo","ovoid",NA,"1",NA,NA,NA,"14",NA
+"Dinophyceae","Azadinium",NA,NA,NA,NA,NA,NA,NA,"1","mixo","ellipsoid",NA,"1",NA,"0",NA,"15","0.5"
+"Dinophyceae","Biecheleria",NA,NA,NA,NA,NA,NA,NA,"1","mixo",NA,NA,"1","0",NA,NA,"35","0"
+"Dinophyceae","Chytriodinium",NA,NA,NA,NA,"0","0","chain","1","hetero","ellipsoide","0","1","0","1",NA,"70","0"
+"Dinophyceae","Cochlodinium",NA,NA,"0",NA,"0","0","chain","1","mixo","circumscribing","0","1","0","0",NA,"25","1"
+"Dinophyceae","Dinophysis","asexual",NA,"0","theca","0","1","0","1","mixo","flattened ellipsoid","0","1","0","0",NA,"40","1"
+"Dinophyceae","Gonyaulax",NA,NA,"0",NA,"0","1",NA,"1","mixo","Cone + half sphere","0","1","0","0",NA,"40","1"
+"Dinophyceae","Gymnodinium",NA,NA,"0",NA,"0","1",NA,"1","mixo","flattened ellipsoid","0","1","0","0",NA,"70","1"
+"Dinophyceae","Gyrodinium",NA,NA,"0",NA,"0","1",NA,"1","mixo","flattened ellipsoid","0","1","0",NA,NA,"40","0"
+"Dinophyceae","Halostylodinium",NA,NA,NA,NA,NA,NA,NA,"1","auto","Rotational ellipsoid",NA,"1","0",NA,NA,"35","0"
+"Dinophyceae","Heterocapsa",NA,NA,"0","theca","0","1","0","1","mixo","Two cones","0","1","0","0",NA,"23","1"
+"Dinophyceae","Islandinium",NA,NA,NA,NA,"0","0",NA,"1","hetero","spherical","0","1","0",NA,NA,"30","0"
+"Dinophyceae","Karlodinium",NA,NA,NA,NA,NA,NA,NA,"1","mixo","oval",NA,"1",NA,"0",NA,"17","1"
+"Dinophyceae","Katodinium",NA,NA,"0",NA,"0","1",NA,"1","mixo",NA,"0","1","0",NA,NA,"25",NA
+"Dinophyceae","Neoceratium",NA,NA,NA,NA,NA,NA,NA,"1","mixo","concave with a spine ( tetard)",NA,"0","0",NA,NA,"200","0"
+"Dinophyceae","Oxyphysis",NA,NA,NA,NA,"0","0",NA,"1","hetero","ellipso�dal","0","1","0",NA,NA,"60","0"
+"Dinophyceae","Paragymnodinium",NA,NA,NA,NA,NA,NA,NA,"1","mixo","sphere",NA,"1","0",NA,NA,"12","0"
+"Dinophyceae","Pelagodinium",NA,NA,NA,NA,NA,NA,NA,"1","mixo","flattened ellipsoid",NA,"1","0",NA,NA,"10","0"
+"Dinophyceae","Peridiniella",NA,NA,NA,NA,NA,NA,NA,"1","auto",NA,NA,"1",NA,NA,NA,"20",NA
+"Dinophyceae","Peridinium",NA,NA,"0",NA,"0","1",NA,"1","mixo","ellipsoid","0","1","0",NA,NA,"35","0"
+"Dinophyceae","Phalacroma",NA,NA,"0",NA,"0",NA,NA,"1","hetero","ice cream","0","1","0","0",NA,"70","1"
+"Dinophyceae","Polarella",NA,NA,NA,NA,NA,NA,NA,"1","mixo","ellipsoid",NA,"1","0",NA,NA,"10","0"
+"Dinophyceae","Prorocentrum","asexual",NA,NA,"theca",NA,NA,"0","1","mixo","leaf",NA,"1",NA,"0","1","20","1"
+"Dinophyceae","Proterythropsis",NA,NA,NA,NA,NA,NA,NA,"1","hetero",NA,NA,"1",NA,NA,NA,"17",NA
+"Dinophyceae","Protodinium",NA,NA,NA,NA,NA,NA,NA,"1","auto",NA,NA,"1","0",NA,NA,"11","0"
+"Dinophyceae","Protoperidinium",NA,NA,"0","theca","0","0","0","1","hetero","Sphere + half cone","0","1","0",NA,NA,"100","0"
+"Dinophyceae","Ptychodiscus",NA,NA,NA,NA,NA,NA,NA,"1","mixo",NA,NA,"1",NA,NA,NA,"30","1"
+"Dinophyceae","Scrippsiella",NA,NA,"0",NA,"0","1",NA,"1","mixo","sphere","0","1","0","0",NA,"22","1"
+"Dinophyceae","Spiniferodinium",NA,NA,NA,NA,NA,NA,NA,"1","auto","ellipsoid",NA,"0","0",NA,NA,"42","0"
+"Dinophyceae","Torodinium",NA,NA,NA,NA,NA,NA,NA,"1","hetero",NA,NA,"1",NA,NA,NA,"108",NA
+"Dinophyceae","Woloszynskia",NA,NA,"0",NA,"0",NA,NA,"1","mixo",NA,"0","1","0",NA,NA,"12","0"
+"Euglenoidea","Eutreptiella",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"1",NA,NA,NA,"17",NA
+"Imbricatea","Pseudopirsonia",NA,NA,NA,NA,"0","0",NA,"0","hetero","sphere","0","1","0","1",NA,"8","0"
+"Incertae_Sedis","Commation",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"9",NA
+"Incertae_Sedis","Haplozoon",NA,NA,NA,NA,"0","0",NA,"0","hetero","Multi-cylinder","0","1","0","1",NA,"90","0"
+"Incertae_Sedis","Quadricilia",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"10",NA
+"Intramacronucleata","Amphorellopsis",NA,NA,NA,NA,"0","0",NA,"0","hetero","bowl","0","1","0","0",NA,"35","0"
+"Intramacronucleata","Codonellopsis",NA,NA,NA,NA,"0","0",NA,"0","hetero","bowl","0","1","0",NA,NA,"40","0"
+"Intramacronucleata","Cymatocylis",NA,NA,NA,NA,"0","0",NA,"0","hetero","bowl","0","1","0","0",NA,"90","0"
+"Intramacronucleata","Didinium",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"110","0"
+"Intramacronucleata","Lohmanniella",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"40",NA
+"Intramacronucleata","Loxophyllum",NA,NA,NA,NA,"0","0",NA,"0","hetero","ellipsoidal","0","1","0",NA,NA,"90","0"
+"Intramacronucleata","Mesodinium",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"68",NA
+"Intramacronucleata","Pelagostrobilidium",NA,NA,NA,NA,"0","0",NA,"0","hetero",NA,"0","1","0",NA,NA,"68","0"
+"Intramacronucleata","Pithites",NA,NA,NA,NA,"0","0",NA,"0","hetero",NA,"0","1","0",NA,NA,"68","0"
+"Intramacronucleata","Pseudocohnilembus",NA,NA,NA,NA,"0","0",NA,"0","hetero",NA,"0","1","0",NA,NA,"68","0"
+"Intramacronucleata","Pseudotontonia",NA,NA,NA,NA,"0","0",NA,"0","hetero","Rotational ellipsoid","0","1","0",NA,NA,"70","0"
+"Intramacronucleata","Spirostrombidium",NA,NA,NA,NA,"0","0",NA,"0","hetero",NA,"0","1","0",NA,NA,"68","0"
+"Intramacronucleata","Spirotontonia",NA,NA,NA,NA,"0","0",NA,"0","hetero","obconical","0","1","0",NA,NA,"100","0"
+"Intramacronucleata","Strombidinopsis",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"68","0"
+"Intramacronucleata","Strombidium",NA,NA,NA,NA,NA,NA,NA,"0","hetero","bowl",NA,"1",NA,NA,NA,"50","0"
+"Intramacronucleata","Tintinnopsis",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"0",NA,NA,NA,"60","0"
+"Intramacronucleata","Uronema",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"68",NA
+"Intramacronucleata","Zoothamnium",NA,NA,NA,NA,NA,NA,"1","0","hetero","triangle",NA,"1",NA,"1","1","60",NA
+"Kathablepharidae_cl","Leucocryptos",NA,NA,"0",NA,"0","0",NA,"0","hetero","Cone + half sphere","0","1","0","0",NA,"6","0"
+"Mamiellophyceae","Bathycoccus",NA,NA,NA,NA,NA,NA,NA,"0","auto","ellipsoid",NA,"0",NA,NA,NA,"1",NA
+"Mamiellophyceae","Dolichomastix",NA,NA,"0",NA,"1","0",NA,"0","auto","Rotational ellipsoid","0","1","0",NA,NA,"3","0"
+"Mamiellophyceae","Mamiella",NA,NA,NA,NA,NA,NA,NA,"0","auto","Rotational ellipsoid",NA,"1",NA,NA,NA,"3","0"
+"Mamiellophyceae","Micromonas",NA,NA,"0",NA,"1","0",NA,"1","auto","Rotational ellipsoid","0","1","0",NA,NA,"2","0"
+"Ochrophyta_cl","Bolidomonas",NA,NA,NA,NA,NA,NA,NA,"0","auto","sphere",NA,"1","0",NA,NA,"2","0"
+"Pelagophyceae","Aureococcus",NA,NA,NA,NA,NA,NA,NA,"1","mixo",NA,NA,"0",NA,NA,NA,"2",NA
+"Pelagophyceae","Pelagomonas",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"1",NA,NA,NA,"2",NA
+"Pelagophyceae","Sarcinochrysis",NA,NA,NA,NA,NA,NA,NA,"0","auto",NA,NA,"1","0",NA,NA,"5","0"
+"Perkinsidae","Parvilucifera",NA,NA,NA,NA,"0","0",NA,"0","hetero","Rotational ellipsoid","0","1","0","1",NA,"40","0"
+"Picomonadida","Picomonas",NA,NA,NA,NA,"0","0",NA,"0","hetero","cylindrical","0","1","0","0",NA,"2","0"
+"Prasinophytae","Prasinoderma",NA,NA,NA,NA,NA,NA,NA,"1","auto","sphere",NA,"0","0",NA,NA,"3","0"
+"Prasinophytae","Pterosperma",NA,NA,"0",NA,"1","0",NA,"1","auto","sphere","0","1","0",NA,NA,"15","0"
+"Prasinophytae","Pyramimonas",NA,NA,"0",NA,"1","0",NA,"1","auto","trapezoid","0","1","0",NA,NA,"4","0"
+"Prymnesiales","Chrysochromulina",NA,NA,"0",NA,"0","1",NA,"1","mixo","sphere ","0","1","0","0",NA,"5","1"
+"Prymnesiales","Corymbellus",NA,NA,NA,NA,NA,NA,NA,"1","auto",NA,NA,"1",NA,NA,NA,"9",NA
+"Prymnesiales","Gladiolithus",NA,NA,NA,"calcifiers",NA,NA,"0.5","1","auto","bowl",NA,"0",NA,NA,NA,"21",NA
+"Prymnesiales","Haptolina",NA,NA,NA,NA,NA,NA,NA,"1","mixo","Rotational ellipsoid",NA,"1","0","0",NA,"9","0"
+"Prymnesiales","Prymnesium",NA,NA,"0",NA,"0","1",NA,"1","mixo","Rotational ellipsoid","0","1","0","0",NA,"9","1"
+"Prymnesiophyceae_cl","Phaeocystis_diploid","diploid",NA,"0",NA,"0","1","chain","1","auto","sphere","0","0","0","0",NA,"8","1"
+"Prymnesiophyceae_cl","Phaeocystis_haploid","haploid",NA,"0",NA,"0","1","chain","1","auto","sphere","0","1","0","0",NA,"8","1"
+"Raphidophyceae","Chattonella",NA,NA,NA,NA,NA,NA,NA,"0","mixo",NA,NA,"1",NA,NA,NA,"37",NA
+"Raphidophyceae","Haramonas",NA,NA,NA,NA,NA,NA,NA,"0","auto","ovo�de",NA,"1","0","1",NA,"34","0"
+"Raphidophyceae","Heterosigma",NA,NA,NA,NA,NA,NA,NA,"0","mixo",NA,NA,"1",NA,NA,NA,"20",NA
+"Syndiniales","Amoebophrya",NA,NA,NA,NA,"0","0",NA,"0","hetero","sphere","0","1","0","1","0","5","0"
+"Syndiniales","Syndiniales",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,"1",NA,"2",NA
+"Telonemea","Telonema",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"6",NA
+"Thecofilosea","Rhogostoma",NA,NA,NA,NA,"0","0",NA,"0","hetero","oval","0","1","0",NA,NA,"9","0"
+"Xanthophyceaea","Meringosphaera",NA,NA,NA,NA,NA,NA,NA,"0","hetero",NA,NA,"1",NA,NA,NA,"30",NA
