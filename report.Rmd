@@ -2,7 +2,7 @@
 title: "LabSea Protists"
 author: "LabSea Slackers"
 date: "`r Sys.Date()`"
-output: html_document
+output: github_document
 ---
 
 ```{r global_options, include=FALSE}
@@ -180,6 +180,14 @@ samdf_agg$stationGr=cut(samdf_agg$Station,breaks=c(-Inf,11,27,Inf),labels=c("lss
 
 #divide sequencing data by volume
 transect_seq_agg=transect_seq_agg/samdf_agg[rownames(transect_seq_agg),"Volume"]
+
+# dummy coding
+dummy=model.matrix(~stationGr, data = samdf_agg)
+samdf_agg=cbind(samdf_agg,dummy)
+
+# dummy coding
+dummy=model.matrix(~Year, data = samdf_agg)
+samdf_agg=cbind(samdf_agg,dummy)
 ```
 ```{r kable,echo=F}
 # table of functional traits coverage
@@ -205,22 +213,25 @@ Permanova for taxonomical composition (sequencing)
 - Proportion of each taxa (to compare with functional) loggit transformed
 ```{r taxo, echo=F}
 
-# proportion by taxa
-transect_seq.prop=prop.table(as.matrix(transect_seq_agg),margin=1)
+dat=samdf_agg[rownames(transect_seq_agg),]
+com=decostand(transect_seq_agg,method="hel")
+ 
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+plot(vp)
 
-# logit transformation (for percentages)
-transect_seq.logit=car::logit(transect_seq.prop)
-# add the minimum (permanova = no negative values)
-transect_seq.logit=transect_seq.logit+abs(min(transect_seq.logit))
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),by="margin",step=1000)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),step=1000) 
 
+vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+plot(vp)
 
-print(fit <-adonis(transect_seq.logit~Year*stationGr,method="bray",permutations=999,data = 
-samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),step=1000)
 
-print(fit <-adonis(transect_seq.logit~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=999,data = 
-samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
 
 ```
+
+
 
 ## Feeding strategy
 - Proportion of organism/trait loggit transformed
@@ -233,22 +244,26 @@ transect_fs=mergeByCat(transect_seq_agg,as.factor(fsVector))
 
 # calculate the proportion of each trait
 com_prop=prop.table(as.matrix(transect_fs),margin=1)
+com_abun=com_prop*rowSums(transect_seq_agg)
 
-fsVector_seq=fsVector
+samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
+rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
 
 
-# logit transformation (for percentages)
-com_prop.logit=car::logit(com_prop)
-# add the minimum (permanova = no negative values)
-com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
+dat=samdf_agg[rownames(transect_seq_agg),]
+com=decostand(com_abun,method="hel")
+  
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+plot(vp)
 
-# permonava with the proportion of each trait, logit transform
-print(fit <-adonis(com_prop.logit
-~Year*stationGr,method="bray",permutations=999,data = 
-samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),by="margin",step=1000)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),step=1000) 
 
-print(fit <-adonis(com_prop.logit
-~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
+vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+plot(vp)
+
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),step=1000)
 
 #abundance by trait
 com_prop_seq_fs=com_prop
@@ -283,20 +298,6 @@ com_abun=com_prop_seq_size*rowSums(transect_seq_agg)
 samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
 rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
 
-# logit transformation (for percentages)
-com_prop.logit=car::logit(com_prop)
-# add the minimum (permanova = no negative values)
-com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
-
-# permonava with the proportion of each trait, logit transform
-print(fit <-adonis(com_prop.logit
-~Year*stationGr,method="bray",permutations=999,data = 
-samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
-
-print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
-~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
-
-
 
 ppi=600
 png("size3_smooth.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
@@ -315,26 +316,29 @@ com_abun=com_prop_seq_size*rowSums(transect_seq_agg)
 samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
 rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
 
-# logit transformation (for percentages)
-com_prop.logit=car::logit(com_prop)
-# add the minimum (permanova = no negative values)
-com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
 
-# permonava with the proportion of each trait, logit transform
-print(fit <-adonis(com_prop.logit
-~Year*stationGr,method="bray",permutations=999,data = 
-samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+dat=samdf_agg[rownames(transect_seq_agg),]
+com=decostand(com_abun,method="hel")
+  
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+plot(vp)
 
-print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
-~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),by="margin",step=1000)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),step=1000) 
+
+vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+plot(vp)
+
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),step=1000)
 
 
 #unique(transect_sizeClass)
-transect_fs_C1=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(0.2,2]"],as.factor(fsVector_seq)),margin=1)
-transect_fs_C2=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(2,5]"],as.factor(fsVector_seq)),margin=1)
-transect_fs_C3=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(5,10]"],as.factor(fsVector_seq)),margin=1)
-transect_fs_C4=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(10,20]"],as.factor(fsVector_seq)),margin=1)
-transect_fs_C5=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(20,Inf]"],as.factor(fsVector_seq)),margin=1)
+transect_fs_C1=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(0.2,2]"],as.factor(fsVector)),margin=1)
+transect_fs_C2=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(2,5]"],as.factor(fsVector)),margin=1)
+transect_fs_C3=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(5,10]"],as.factor(fsVector)),margin=1)
+transect_fs_C4=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(10,20]"],as.factor(fsVector)),margin=1)
+transect_fs_C5=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(20,Inf]"],as.factor(fsVector)),margin=1)
 
 
 
@@ -387,18 +391,22 @@ colnames(com_abun)=c("Motility0","Motility1")
 samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
 rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
 
-# logit transformation (for percentages)
-com_prop.logit=car::logit(com_prop)
-# add the minimum (permanova = no negative values)
-com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
 
-# permonava with the proportion of each trait, logit transform
-print(fit <-adonis(com_prop.logit
-~Year*stationGr,method="bray",permutations=999,data = 
-samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+dat=samdf_agg[rownames(transect_seq_agg),]
+com=decostand(com_abun,method="hel")
 
-print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
-~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+plot(vp)
+
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),by="margin",step=1000)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),step=1000) 
+
+vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+plot(vp)
+
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),step=1000)
+
 
 ```
 ## DMS
@@ -411,7 +419,7 @@ transect_dms=mergeByCat(transect_seq_agg,as.factor(dmsVector))
 transect_dms_hel=decostand(transect_dms,method="hel")
 com_prop=prop.table(as.matrix(transect_dms),margin=1)
 
-com_abun=com_prop_seq_size*rowSums(transect_seq_agg)
+com_abun=com_prop*rowSums(transect_seq_agg)
 colnames(com_abun)=c("DMS0","DMS1")
 
 samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
@@ -425,9 +433,24 @@ com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
 # permonava with the proportion of each trait, logit transform
 print(fit <-adonis(com_prop.logit
 ~Year*stationGr,method="bray",permutations=999,data = 
-samdf_agg[rownames(transect_seq.logit),]),permutations = 9999)
+samdf_agg[rownames(transect_seq_agg),]),permutations = 9999)
 
 print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
 ~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
+
+dat=samdf_agg[rownames(transect_seq_agg),]
+com=decostand(com_abun,method="hel")
+  
+vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),dat$Year)
+
+anova.cca(rda(com,cbind(dat$DSP.4),cbind(dat$Year,dat$stationGrcentre,dat$stationGrgreenland)),step=1000)
+
+anova.cca(rda(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$DSP.4,dat$Year)),step=1000)
+
+anova.cca(rda(com,cbind(dat$Year),cbind(dat$DSP.4,dat$stationGrcentre,dat$stationGrgreenland)),step=1000)
+
+anova.cca(rda(com,cbind(dat$stationGrcentre,dat$stationGrgreenland,dat$DSP.4,dat$Year)),step=1000)
+
+plot(vp)
 
 write.csv(samdf_agg,"data/samdf_agg.csv")
