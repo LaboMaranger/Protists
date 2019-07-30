@@ -2,7 +2,7 @@
 title: "LabSea Protists"
 author: "LabSea Slackers"
 date: "`r Sys.Date()`"
-output: github_document
+output: html_document
 ---
 
 ```{r global_options, include=FALSE}
@@ -23,6 +23,10 @@ options(stringsAsFactors = FALSE)
 #tSel="feeding_strategy"
 #cw=cw_seq
 #cw_var="validName"
+# m = 
+# t= taxonomic table rows= taxa, cols = taxa levels)
+# tSel =  
+# 
 traitsByOTU<- function(m,t,tSel,cw,cw_var){
   v=rep(NA,ncol(m))
   names(v)=colnames(m)
@@ -44,7 +48,8 @@ logitPerCol<- function(m){
 
 #m=transect_seq_agg[,sizeClasses%in%"(0.2,2]"]
 #c=as.factor(fsVector_seq)
-
+# where m=community matrix (cols = taxa, rows = sites)
+# c= a vertor with the selected taxonomic level for agregation and OTU as name
 mergeByCat<- function(m,c){
   c=c[!is.na(c)]
   c=c[names(c)%in%colnames(m)]
@@ -55,12 +60,6 @@ mergeByCat<- function(m,c){
   return(mergedM)
 }
 
-ReporteRsWrap<- function(FUN,filename="Figure1"){
-  doc <- pptx()
-  doc <- addSlide(doc, "Two Content" )
-  doc <- addPlot(doc, FUN, vector.graphic = TRUE )
-  writeDoc(doc, file = paste0("figures/",filename,".pptx"))
-}
 
 waByOTU<-function(com,v){
   v=v[!is.na(v)]
@@ -108,7 +107,7 @@ library(plyr)
 #-library(ggplot2)
 library(knitr)
 #-library(FD)
-library(ReporteRs)
+#library(ReporteRs)
 ```
 
 
@@ -222,7 +221,7 @@ plot(vp)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),by="margin",step=1000)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),step=1000) 
 
-vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
 plot(vp)
 
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
@@ -259,7 +258,7 @@ plot(vp)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),by="margin",step=1000)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),step=1000) 
 
-vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
 plot(vp)
 
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
@@ -326,7 +325,7 @@ plot(vp)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),by="margin",step=1000)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),step=1000) 
 
-vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
 plot(vp)
 
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
@@ -357,20 +356,20 @@ com_prop_seq_size=com_prop
 
 
 plotC1<- function(){plot_transect_small(transect_fs_C1[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-ReporteRsWrap(plotC1,"C1")
+#-ReporteRsWrap(plotC1,"C1")
 
 plotC2<- function(){plot_transect_small(transect_fs_C2[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-ReporteRsWrap(plotC2,"C2")
+#-ReporteRsWrap(plotC2,"C2")
 
 
 plotC3<- function(){plot_transect_small(transect_fs_C3[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-ReporteRsWrap(plotC3,"C3")
+#-ReporteRsWrap(plotC3,"C3")
 
 plotC4<- function(){plot_transect_small(transect_fs_C4[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-ReporteRsWrap(plotC4,"C4")
+#-ReporteRsWrap(plotC4,"C4")
 
 plotC5<- function(){plot_transect_small(transect_fs_C5[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-ReporteRsWrap(plotC5,"C5")
+#-ReporteRsWrap(plotC5,"C5")
 ```
 ## Motilité
 ### Seq
@@ -401,7 +400,7 @@ plot(vp)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),by="margin",step=1000)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),step=1000) 
 
-vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
 plot(vp)
 
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
@@ -441,7 +440,7 @@ print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
 dat=samdf_agg[rownames(transect_seq_agg),]
 com=decostand(com_abun,method="hel")
   
-vp=varpart(com,dat$DSP.4,cbind(dat$stationGrcentre,dat$stationGrgreenland),dat$Year)
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
 
 anova.cca(rda(com,cbind(dat$DSP.4),cbind(dat$Year,dat$stationGrcentre,dat$stationGrgreenland)),step=1000)
 
