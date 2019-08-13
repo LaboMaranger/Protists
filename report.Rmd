@@ -60,6 +60,12 @@ mergeByCat<- function(m,c){
   return(mergedM)
 }
 
+#function to output the correlations and significance from indval analysis
+factors=dat$stationGr
+indval_outCor<-function(com=com, factors){
+indval = strassoc(as.data.frame((com_prop)), as.factor(factors), func = "r.g",nboot=999)
+#df=round(cbind(indval$str[,1:length(unique(factors))],indval$sign[,(length(unique(factors))+2):(length(unique(factors))+3)]),2)
+return(indval)}
 
 waByOTU<-function(com,v){
   v=v[!is.na(v)]
@@ -251,6 +257,11 @@ rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
 
 dat=samdf_agg[rownames(transect_seq_agg),]
 com=decostand(com_abun,method="hel")
+indval_outCor(com,factors=dat$Year)
+indval_outCor(com,factors=dat$stationGr)
+#write.csv(indval_outCor(com,factors=dat$Year),"data/indVal_fs_yr.csv")
+#write.csv(indval_outCor(com,factors=dat$stationGr),"data/indVal_fs_stations.csv")
+
   
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
 plot(vp)
@@ -321,6 +332,24 @@ com=decostand(com_abun,method="hel")
   
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
 plot(vp)
+
+col=NA
+col[dat$stationGrcentre==1]="red"
+col[dat$stationGrgreenland==1]="green"
+col[is.na(col)]="black"
+
+library(indicspecies)
+
+
+com=com[,c("(0.2,2]","(2,5]","(5,10]","(10,20]","(20,Inf]")]
+
+indval_outCor(com,factors=dat$Year)
+indval_outCor(com,factors=dat$stationGr)
+
+
+
+
+
 
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),by="margin",step=1000)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),step=1000) 
@@ -394,6 +423,10 @@ rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
 dat=samdf_agg[rownames(transect_seq_agg),]
 com=decostand(com_abun,method="hel")
 
+
+indval_outCor(com,factors=dat$Year)
+indval_outCor(com,factors=dat$stationGr)
+
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
 plot(vp)
 
@@ -429,16 +462,16 @@ com_prop.logit=car::logit(com_prop)
 # add the minimum (permanova = no negative values)
 com_prop.logit=com_prop.logit+abs(min(com_prop.logit))
 
-# permonava with the proportion of each trait, logit transform
-print(fit <-adonis(com_prop.logit
-~Year*stationGr,method="bray",permutations=999,data = 
-samdf_agg[rownames(transect_seq_agg),]),permutations = 9999)
-
-print(fit <-adonis(com_prop.logit+abs(min(com_prop.logit))
-~DSP.4+chla.Peak+Year*stationGr,method="bray",permutations=9999,data = samdf_agg[rownames(com_prop),]))
 
 dat=samdf_agg[rownames(transect_seq_agg),]
 com=decostand(com_abun,method="hel")
+
+indval_outCor(com,factors=dat$Year)
+indval_outCor(com,factors=dat$stationGr)
+
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
+plot(vp)
+
   
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
 
@@ -453,3 +486,4 @@ anova.cca(rda(com,cbind(dat$stationGrcentre,dat$stationGrgreenland,dat$DSP.4,dat
 plot(vp)
 
 write.csv(samdf_agg,"data/samdf_agg.csv")
+```
