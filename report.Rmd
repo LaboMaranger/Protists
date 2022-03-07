@@ -61,9 +61,9 @@ mergeByCat<- function(m,c){
 }
 
 #function to output the correlations and significance from indval analysis
-factors=dat$stationGr
+#factors=dat$stationGr
 indval_outCor<-function(com=com, factors){
-indval = strassoc(as.data.frame((com_prop)), as.factor(factors), func = "r.g",nboot=999)
+indval = strassoc(as.data.frame((com)), as.factor(factors), func = "r.g",nboot=999)
 #df=round(cbind(indval$str[,1:length(unique(factors))],indval$sign[,(length(unique(factors))+2):(length(unique(factors))+3)]),2)
 return(indval)}
 
@@ -90,7 +90,7 @@ if(legend)legend("topleft", legend=colnames(com),col=colors[1:ncol(com)],lty=1,l
 
 plot_transect_small<- function(com,rep,f=0.7){
   colors=c("#73BAE6","#C7144C","#33a02c","#FFD700","#C742B5")
-plot(com[,1]~rep,pch=16,col=colors[1],ylim=c(min(com),max(com)),xlab="Days before peak",ylab="proportion",cex.lab=1.5,cex.axis=1.5,las=1,cex=1.7)
+plot(com[,1]~rep,pch=16,col=colors[1],ylim=c(min(com),max(com)),xlab="Days before peak",ylab="",cex.lab=1.5,cex.axis=1.5,las=1,cex=1.7)
 lines(lowess(com[,1]~rep, f = 0.7), col = colors[1],lwd=4)
 
 
@@ -105,11 +105,12 @@ lines(lowess(com[,i]~rep, f = f), col = colors[i],lwd=4)
 ```
 
 ```{r packages,echo=F}
-
+library(indicspecies)
 library(vegan)
 library(car)
 library(plotrix)
 library(plyr)
+library(tidyr)
 #-library(ggplot2)
 library(knitr)
 #-library(FD)
@@ -140,7 +141,9 @@ rownames(transect_micro)=rn
 transect_seq=read.csv("data/otu_transect_cnMod.csv",row.names=1)
 
 #import traits
-traits=read.csv("data/TransectTraitsTable_wide.csv")
+traits=read.csv("data/TransectTraitsTable_wide_10_2021.csv")
+#traits=read.csv("data/TransectTraitsTable_wide.csv")
+
 
 # import cross-walk tables for micro and sequencing
 cw_micro=read.csv("data/cw_microscopie.csv")
@@ -167,6 +170,12 @@ transect_micro_agg=aggregate(transect_micro, by=groupVar,FUN=sum)
 rownames(transect_micro_agg)= apply( transect_micro_agg[,(1:length(groupVar))] , 1 , paste , collapse = "-" )
 transect_micro_agg=transect_micro_agg[,-(1:length(groupVar))]
 
+# import data gis for groups
+data_gis=read.csv("data/DataGIS.csv")
+rownames(data_gis)=apply(data_gis[,c("year","Station")] , 1 , paste , collapse = "-" )
+
+gis_taxo=data_gis[,c("Chlorophyta","Dinoflagellata","Ochrophyta","Prymnesiophyceae")]
+
 # aggregate samdf
 # group samples by year and station (sum toghether fractions and depths)
 groupVar=list(samdf$Year,samdf$Station)
@@ -185,6 +194,12 @@ samdf_agg$stationGr=cut(samdf_agg$Station,breaks=c(-Inf,11,27,Inf),labels=c("lss
 
 #divide sequencing data by volume
 transect_seq_agg=transect_seq_agg/samdf_agg[rownames(transect_seq_agg),"Volume"]
+gis_taxo=gis_taxo/samdf_agg[rownames(gis_taxo),"Volume"]
+
+
+write.csv(gis_taxo,"gis_taxo.csv")
+colnames(data_gis)
+
 
 # dummy coding
 dummy=model.matrix(~stationGr, data = samdf_agg)
@@ -202,6 +217,7 @@ freqCol<-function(x){length(x[!is.na(x)])/length(x)}
 sumTraits=as.matrix(apply(traitsSel,2,freqCol))
 colnames(sumTraits)=c("Coverage")
 kable(round(sumTraits[order(sumTraits,decreasing = T),,drop=F],2))
+
 ```
 
 
@@ -218,8 +234,25 @@ Permanova for taxonomical composition (sequencing)
 - Proportion of each taxa (to compare with functional) loggit transformed
 ```{r taxo, echo=F}
 
+phylum=cw_seq$Phylum
+names(phylum)=cw_seq$OTU.
+transect_phylum=mergeByCat(transect_seq_agg,phylum)
+transect_phylum=prop.table(as.matrix(transect_phylum),margin=1)
+
+mean(rowSums(transect_phylum[,1:4]))
+range(rowSums(transect_phylum[,1:4]))
+
+
 dat=samdf_agg[rownames(transect_seq_agg),]
-com=decostand(transect_seq_agg,method="hel")
+com=gis_taxo[rownames(dat),]
+prop.table(as.matrix(gis_OTUtaxo),margin=1)
+
+
+indval_outCor(com,factors=dat$Year)
+indval_outCor(com,factors=dat$stationGr)
+
+
+
  
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
 plot(vp)
@@ -247,9 +280,11 @@ anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+da
 fsVector=traitsByOTU(transect_seq_agg,traits,"feeding_strategy",cw_seq,"OTU.")
 transect_fs=mergeByCat(transect_seq_agg,as.factor(fsVector))
 
+rowSums(transect_fs)
+rowSums(transect_seq_agg)
 # calculate the proportion of each trait
 com_prop=prop.table(as.matrix(transect_fs),margin=1)
-com_abun=com_prop*rowSums(transect_seq_agg)
+com_abun=com_prop*rowSums(transect_fs)
 
 samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
 rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
@@ -272,8 +307,18 @@ anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),st
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
 plot(vp)
 
-anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+cbind(dat$Year2015,dat$Year2016)+dat$DSP.4),step=1000)
+
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+cbind(dat$Year2015,dat$Year2016)+dat$DSP.4),step=1000)
+
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),step=1000)
+
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
+plot(vp)
+
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4,dat$chla.Peak.4)
+plot(vp)
+
 
 #abundance by trait
 com_prop_seq_fs=com_prop
@@ -282,17 +327,77 @@ com_abun=com_prop_seq_fs*rowSums(transect_seq_agg)
 samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
 rownames(samdf_agg)=samdf_agg$Row.names;samdf_agg=samdf_agg[,-1]
 
+com_prop_seq_fs=com_prop
+
 # plot with proportions
 
 ppi=600
 png("fs_smooth.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
-plot_transect(com_prop[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_fs),"DSP.4"],legend=F,f=0.6)
+plot_transect(com_prop[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_fs),"DSP.4"],legend=F,f=0.6,ylim=c(0,0.9))
 #plot_transect(com_prop[,c(2,3,1)],samdf_agg[rownames(transect_fs),"DSB.4"])
 invisible(dev.off())
+
+png("fs_smooth_2014.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
+sel=samdf_agg[rownames(transect_fs),"Year"]==2014
+plot_transect(com_prop[sel,c(2,3,1)],samdf_agg[rownames(transect_fs),"DSP.4"][sel])
+dev.off()
+
+png("fs_smooth_2015.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
+sel=samdf_agg[rownames(transect_fs),"Year"]==2015
+plot_transect(com_prop[sel,c(2,3,1)],samdf_agg[rownames(transect_fs),"DSP.4"][sel])
+dev.off()
+
+png("fs_smooth_2016.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
+sel=samdf_agg[rownames(transect_fs),"Year"]==2016
+plot_transect(com_prop[sel,c(2,3,1)],samdf_agg[rownames(transect_fs),"DSP.4"][sel])
+dev.off()
 ```
 
+
+<!---#### Micro--->
+
+```{r feedStrat micro, echo=F,fig.keep="none",results="hide"}
+library(vegan)
+
+#remove smaller than 15
+#transect.sub=transect_seq_agg[,colnames(transect_seq_agg)%in%names(sizeVector[sizeVector>5])]
+
+#remove Phaeocystis
+#transect.sub=transect.sub[,!colnames(transect.sub)%in%cw[cw$validName%in%"Phaeocystis_diploid","OTU."]]
+
+fsVector=traitsByOTU(transect_micro_agg,traits,"feeding_strategy",cw_micro,"validName")
+transect_fs=mergeByCat(transect_micro_agg,as.factor(fsVector))
+transect_fs_hel=decostand(transect_fs,method="hel")
+com_prop=prop.table(as.matrix(transect_fs),margin=1)
+
+print(fit <-adonis(transect_fs_hel~DSP.4+DSB.4+Year*stationGr,method="bray",permutations=999,data = samdf_agg[rownames(transect_fs),]))
+
+# plot with proportions
+
+plot_transect(com_prop[,c(2,1,3)],samdf_agg[rownames(transect_fs),"DSP.4"])
+plot_transect(com_prop[,c(2,1,3)],samdf_agg[rownames(transect_fs),"DSB.4"])
+
+ppi=600
+png("fs_smooth_micro.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
+plot_transect(com_prop[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_fs),"DSP.4"],legend=F,f=0.6,ylim=c(0,1))
+#plot_transect(com_prop[,c(2,3,1)],samdf_agg[rownames(transect_fs),"DSB.4"])
+invisible(dev.off())
+
+com_prop_micro_fs=com_prop
+fsprop<- function(){
+barplot(cbind(apply(com_prop_seq_fs,2,mean),apply(com_prop_micro_fs,2,mean)[match(colnames(com_prop_seq_fs),colnames(com_prop_micro_fs))]), main="",names.arg = c("Sequencage","Micro"),
+  xlab="Number of Gears", col=c("#33a02c","#73BAE6","#C7144C"))
+  }
+png("prop_micro.png",width =5, height = 7, units = 'in',bg="transparent",res=ppi)
+barplot(cbind(apply(com_prop_seq_fs,2,mean),apply(com_prop_micro_fs,2,mean)[match(colnames(com_prop_seq_fs),colnames(com_prop_micro_fs))]), main="",names.arg = c("Sequencage","Micro"),
+  xlab="Number of Gears", col=c("#33a02c","#73BAE6","#C7144C"))
+dev.off()
+
+```
+
+
 ## Classes de taille
-### Sequencage
+
 ```{r classes de tailles seq, echo=F}
 
 classes=c(0.2,2,20,Inf)
@@ -357,18 +462,38 @@ anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),st
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
 plot(vp)
 
+
+vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4,dat$chla.Peak.4)
+plot(vp)
+
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),step=1000)
 
+fs_C1=mergeByCat(transect_seq_agg[,sizeClasses%in%"(0.2,2]"],as.factor(fsVector))
+fs_C2=mergeByCat(transect_seq_agg[,sizeClasses%in%"(2,5]"],as.factor(fsVector))
+fs_C3=mergeByCat(transect_seq_agg[,sizeClasses%in%"(5,10]"],as.factor(fsVector))
+fs_C4=mergeByCat(transect_seq_agg[,sizeClasses%in%"(10,20]"],as.factor(fsVector))
+fs_C5=mergeByCat(transect_seq_agg[,sizeClasses%in%"(20,Inf]"],as.factor(fsVector))
 
+rowSums(fs_C1)+rowSums(fs_C2)+rowSums(fs_C3)+rowSums(fs_C4)+rowSums(fs_C5)
+rowSums(transect_seq_agg[,!is.na(sizeClasses)])
 #unique(transect_sizeClass)
-transect_fs_C1=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(0.2,2]"],as.factor(fsVector)),margin=1)
-transect_fs_C2=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(2,5]"],as.factor(fsVector)),margin=1)
-transect_fs_C3=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(5,10]"],as.factor(fsVector)),margin=1)
-transect_fs_C4=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(10,20]"],as.factor(fsVector)),margin=1)
-transect_fs_C5=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(20,Inf]"],as.factor(fsVector)),margin=1)
+#transect_fs_C1=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(0.2,2]"],as.factor(fsVector)),margin=1)
+prop_fs_C1=fs_C1/ rowSums(transect_seq_agg[,!is.na(sizeClasses)])
+#transect_fs_C2=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(2,5]"],as.factor(fsVector)),margin=1)
+prop_fs_C2=fs_C2/ rowSums(transect_seq_agg[,!is.na(sizeClasses)])
+
+#transect_fs_C3=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(5,10]"],as.factor(fsVector)),margin=1)
+prop_fs_C3=fs_C3/ rowSums(transect_seq_agg[,!is.na(sizeClasses)])
+
+#transect_fs_C4=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(10,20]"],as.factor(fsVector)),margin=1)
+prop_fs_C4=fs_C4/ rowSums(transect_seq_agg[,!is.na(sizeClasses)])
+
+#transect_fs_C5=prop.table(mergeByCat(transect_seq_agg[,sizeClasses%in%"(20,Inf]"],as.factor(fsVector)),margin=1)
+prop_fs_C5=fs_C5/ rowSums(transect_seq_agg[,!is.na(sizeClasses)])
 
 
+prop_fs_C1[1,]+prop_fs_C2[1,]+prop_fs_C3[1,]+prop_fs_C4[1,]+prop_fs_C5[1,]
 
 
 # plot with proportions
@@ -382,23 +507,33 @@ dev.off()
 
 com_prop_seq_size=com_prop
 
+ppi=600
+png("figures/prop_fs_C1.png",width =8, height = 4.8, units = 'in',bg="transparent",res=ppi)
+plot_transect_small(prop_fs_C1[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])
+dev.off()
 
+ppi=600
+png("figures/prop_fs_C2.png",width =8, height = 4.8, units = 'in',bg="transparent",res=ppi)
+plot_transect_small(prop_fs_C2[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])
+dev.off()
+ppi=600
+png("figures/prop_fs_C3.png",width =8, height = 4.8, units = 'in',bg="transparent",res=ppi)
+plot_transect_small(prop_fs_C3[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])
+dev.off()
 
-plotC1<- function(){plot_transect_small(transect_fs_C1[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-#-ReporteRsWrap(plotC1,"C1")
+ppi=600
+png("figures/prop_fs_C4.png",width =8, height = 4.8, units = 'in',bg="transparent",res=ppi)
+plot_transect_small(prop_fs_C4[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])
+dev.off()
 
-plotC2<- function(){plot_transect_small(transect_fs_C2[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-#-ReporteRsWrap(plotC2,"C2")
+ppi=600
+png("figures/prop_fs_C5.png",width =8, height = 4.8, units = 'in',bg="transparent",res=ppi)
+plot_transect_small(prop_fs_C5[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])
+dev.off()
 
+plot_transect_small(fs_C5[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])
+plot_transect_small(fs_C4[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])
 
-plotC3<- function(){plot_transect_small(transect_fs_C3[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-#-ReporteRsWrap(plotC3,"C3")
-
-plotC4<- function(){plot_transect_small(transect_fs_C4[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-#-ReporteRsWrap(plotC4,"C4")
-
-plotC5<- function(){plot_transect_small(transect_fs_C5[,c("mixo","hetero","auto")],samdf_agg[rownames(transect_sizeClass),"DSP.4"])}
-#-ReporteRsWrap(plotC5,"C5")
 ```
 ## Motilité
 ### Seq
@@ -413,7 +548,7 @@ com_prop=prop.table(as.matrix(transect_mot),margin=1)
 
 com_prop_seq_size=com_prop
 
-com_abun=com_prop_seq_size*rowSums(transect_seq_agg)
+com_abun=com_prop_seq_size*rowSums(transect_mot)
 colnames(com_abun)=c("Motility0","Motility1")
 
 samdf_agg=merge(samdf_agg,com_abun,by.x = "row.names",by.y = "row.names")
@@ -427,6 +562,11 @@ com=decostand(com_abun,method="hel")
 indval_outCor(com,factors=dat$Year)
 indval_outCor(com,factors=dat$stationGr)
 
+ppi=600
+png("mot_smooth.png",width =9, height = 7, units = 'in',bg="transparent",res=ppi)
+plot_transect(com_prop  ,samdf_agg[rownames(transect_mot),"DSP.4"],legend=F)
+dev.off()
+
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016))
 plot(vp)
 
@@ -436,7 +576,10 @@ anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$Year),st
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
 plot(vp)
 
-anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),by="margin",step=1000)
+vp=varpart(transect_mot_hel,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4,dat$chla.Peak.4)
+plot(vp)
+
+anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$chla.Peak.4+dat$Year),by="margin",step=1000)
 anova.cca(rda(com~cbind(dat$stationGrcentre,dat$stationGrgreenland)+dat$DSP.4+dat$Year),step=1000)
 
 
@@ -474,6 +617,12 @@ plot(vp)
 
   
 vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4)
+
+#vp=varpart(com,cbind(dat$stationGrcentre,dat$stationGrgreenland),cbind(dat$Year2015,dat$Year2016),dat$DSP.4,dat$chla.Peak)
+plot(vp)
+
+plot_transect(com_prop,  samdf_agg[rownames(transect_dms),"DSP.4"],legend=F)
+
 
 anova.cca(rda(com,cbind(dat$DSP.4),cbind(dat$Year,dat$stationGrcentre,dat$stationGrgreenland)),step=1000)
 
